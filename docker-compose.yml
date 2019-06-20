@@ -1,0 +1,35 @@
+version: "3.7"
+
+services:
+  # Backend API
+  smart-brain-api:
+    container_name: backend
+    build: ./ # this builds what it finds in Dockerfile in the root director
+    command: npm start
+    working_dir: /usr/src/smart-brain-api # we meed to use the same folder we use in the Dockerfile since if we dont do this it wont find modules
+    environment:
+      POSTGRES_URI: postgres://sally:secret@postgres:5432/smart-brain-docker
+      REDIS_URI: redis://redis:6379
+      JWT_SECRET: "JWT_SECRET"
+    volumes:
+      - ./://usr/src/smart-brain-api
+    ports:
+      - "3001:3001"
+
+  # Postgres
+  postgres:
+    restart: always
+    environment:
+      POSTGRES_USER: "sally"
+      POSTGRES_PASSWORD: "secret"
+      POSTGRES_DB: smart-brain-docker
+      POSTGRES_HOST: postgres
+    build: ./postgres
+    ports:
+      - "5432"
+
+  # Redis
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
